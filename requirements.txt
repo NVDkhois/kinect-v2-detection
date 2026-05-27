@@ -1,0 +1,29 @@
+# KinectVision — Python 3.10
+# ============================================================================
+# CHỌN 1 TRONG 2 theo GPU của máy:
+#   • Máy NVIDIA (CUDA)  → dùng file này (requirements.txt) + torch CUDA build.
+#   • Máy AMD (vd RX 580) → dùng requirements-amd.txt (ONNX Runtime + DirectML EP).
+#     KHÔNG cài lẫn 2 file. Xem docs/ke_hoach_chuyen_rx580.md.
+# ============================================================================
+# Target gốc: GTX 1060 3GB. Model mặc định: yolo26s.pt (~744MB VRAM, ~20ms/frame).
+# KHÔNG dùng m-class (yolo26m/yolo11m) — ~38ms/frame vỡ realtime 30fps
+# (đã đo lại trên RX 580: m@640=36.8ms/27fps cũng vỡ — bottleneck là latency).
+
+# Core
+numpy>=1.24
+opencv-python>=4.8.0
+
+# Detection + tracking
+ultralytics>=8.3.0          # YOLO26 + BYTETracker built-in + training (đã test 8.4.48)
+torch>=2.0.0                # Cài CUDA build riêng cho GPU
+lap>=0.5                    # Hungarian matcher cho ByteTrack
+
+# UI
+PyQt5>=5.15.0
+
+# Test (optional, có thể bỏ qua)
+pytest>=7.0
+
+# Kinect V2 driver (Windows only — webcam fallback nếu không có)
+pykinect2>=0.1.0; platform_system == "Windows"
+comtypes>=1.1.10; platform_system == "Windows"

@@ -1,0 +1,42 @@
+# requirements-amd.txt — môi trường cho máy GPU AMD (vd RX 580) trên Windows.
+#
+# Khác máy NVIDIA: KHÔNG có CUDA. torch KHÔNG chạy nổi YOLO trên DirectML →
+# inference chạy qua ONNX Runtime + DirectML EP (onnxruntime-directml). torch
+# chỉ dùng CPU để: warmup import-order, export .pt→.onnx (tools/export_onnx.py),
+# và training (CPU, chậm). Xem docs/ke_hoach_chuyen_rx580.md.
+#
+# CÀI ĐẶT (Python 3.10, theo thứ tự):
+#   py -3.10 -m venv .venv310
+#   .\.venv310\Scripts\Activate.ps1
+#   # 1) torch CPU (build cpu — KHÔNG cài bản CUDA trên máy AMD):
+#   pip install torch==2.4.1 torchvision==0.19.1 --index-url https://download.pytorch.org/whl/cpu
+#   # 2) phần còn lại:
+#   pip install -r requirements-amd.txt
+#   # 3) vá pykinect2 (mất khi reinstall — chạy lại sau mỗi lần tạo venv):
+#   python tools\patch_pykinect2.py
+#
+# Lưu ý: KHÔNG cài chung với requirements.txt (bản CUDA). Chọn 1 trong 2 theo GPU.
+
+# --- Inference GPU AMD/Intel (đường chính thay CUDA) ---
+onnxruntime-directml==1.23.0   # ONNX Runtime + DirectML EP — chạy YOLO trên RX 580
+onnx==1.21.0                   # định dạng model
+onnxslim==0.1.94               # simplify graph khi export (tools/export_onnx.py)
+
+# --- YOLO / xử lý ảnh / tracking ---
+ultralytics==8.4.53            # chỉ dùng để EXPORT .pt→.onnx + training; KHÔNG load .onnx qua nó
+opencv-python==4.13.0.92
+lap==0.5.13                    # Hungarian matcher cho ByteTrack
+numpy==2.2.6
+
+# --- UI ---
+PyQt5==5.15.11
+
+# --- Kinect V2 (Windows) ---
+pykinect2==0.1.0
+comtypes==1.1.11               # PIN: 1.4.x đổi API _check_version; 1.1.7 cú pháp Py2 → 1.1.11 hợp
+
+# --- Test ---
+pytest==9.0.3
+
+# torch / torchvision cài riêng ở bước 1 (index cpu) — KHÔNG để pip kéo bản mặc định.
+# torch-directml KHÔNG cần (DirectML không chạy nổi YOLO — đã loại, xem Pha 1).
